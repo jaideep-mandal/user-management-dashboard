@@ -10,6 +10,17 @@
     <div class="container">
         <h1>User Management Dashboard</h1>
         <button id="addUserBtn">Add User</button>
+
+        <form id="editUserForm" style="display: none; margin-top: 20px;">
+            <h3>Edit User</h3>
+            <label>First Name: <input type="text" id="editFirstName" required></label><br><br>
+            <label>Last Name: <input type="text" id="editLastName" required></label><br><br>
+            <label>Email: <input type="email" id="editEmail" required></label><br><br>
+            <label>Department: <input type="text" id="editDepartment" required></label><br><br>
+            <button id="saveUserBtn" type="submit">Save Changes</button>
+            <button type="button" class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+        </form>
+
         <table id="userTable">
             <thead>
                 <tr>

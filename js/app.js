@@ -5,11 +5,11 @@ const API_URL = 'https://jsonplaceholder.typicode.com/users';
 function fetchUsers() {
     fetch(API_URL)
         .then(response => response.json())
-        .then(data => {
+        .then(users => {
             const userTable = document.querySelector('#userTable tbody');
-            userTable.innerHTML = '';  // Clear existing table rows
+            userTable.innerHTML = ''; // Clear existing table rows
 
-            data.forEach(user => {
+            users.forEach(user => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.id}</td>
@@ -18,54 +18,73 @@ function fetchUsers() {
                     <td>${user.email}</td>
                     <td>${user.company.name}</td> <!-- Department -->
                     <td>
-                        <button onclick="editUser(${user.id})">Edit</button>
-                        <button onclick="deleteUser(${user.id})">Delete</button>
+                        <button class="edit-btn" onclick="editUser(${user.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>
                     </td>
                 `;
                 userTable.appendChild(row);
             });
         })
-        .catch(error => console.error('Error fetching users:', error));
+        .catch(error => {
+            console.error('Error fetching users:', error);
+        });
 }
 
-// Function to handle adding a new user
+// Function to handle adding a new user (you can mock adding data)
 function addUser() {
-    const newUser = {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        company: { name: "Engineering" }
-    };
-
-    fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(newUser),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('New user added:', data);
-        fetchUsers(); // Refresh user list
-    })
-    .catch(error => console.error('Error adding user:', error));
+    alert("Add User functionality is not implemented in this version.");
 }
+
+// Track the currently edited user
+let currentEditingUserId = null;
 
 // Function to handle editing a user
 function editUser(userId) {
-    alert('Edit user functionality for ID: ' + userId);
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(users => {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                currentEditingUserId = userId; // Store the user ID for later
+
+                // Populate the form fields with user data
+                document.getElementById('editFirstName').value = user.name.split(' ')[0] || '';
+                document.getElementById('editLastName').value = user.name.split(' ')[1] || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editDepartment').value = user.company.name || '';
+
+                // Display the form
+                document.getElementById('editUserForm').style.display = 'block';
+            }
+        });
 }
 
-// Function to handle deleting a user
+// Save edited user
+function saveEditUser() {
+    const updatedUser = {
+        id: currentEditingUserId,
+        firstname: document.getElementById('editFirstName').value,
+        lastname: document.getElementById('editLastName').value,
+        email: document.getElementById('editEmail').value,
+        department: document.getElementById('editDepartment').value
+    };
+
+    // Handle the updated user
+    alert(`User with ID ${updatedUser.id} is updated.`);
+
+    // Hide the edit form after saving
+    cancelEdit();
+}
+
+// Cancel editing
+function cancelEdit() {
+    document.getElementById('editUserForm').reset();
+    document.getElementById('editUserForm').style.display = 'none';
+}
+
+// Function to handle deleting a user (mock action)
 function deleteUser(userId) {
-    fetch(`${API_URL}/${userId}`, {
-        method: 'DELETE',
-    })
-    .then(() => {
-        console.log(`User with ID ${userId} deleted.`);
-        fetchUsers(); // Refresh user list
-    })
-    .catch(error => console.error('Error deleting user:', error));
+    alert(`User with ID ${userId} would be deleted.`);
 }
 
 // Initialize the page by fetching and displaying users
@@ -73,3 +92,9 @@ document.addEventListener('DOMContentLoaded', fetchUsers);
 
 // Add event listener for "Add User" button
 document.getElementById('addUserBtn').addEventListener('click', addUser);
+
+// Handle form submission
+document.getElementById('editUserForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent form from refreshing the page
+    saveEditUser();
+});
