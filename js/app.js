@@ -1,7 +1,7 @@
 // API URL for user data
 const API_URL = 'https://jsonplaceholder.typicode.com/users';
 
-// Function to fetch and display users
+// Fetch and display users in the table
 function fetchUsers() {
     fetch(API_URL)
         .then(response => response.json())
@@ -27,74 +27,133 @@ function fetchUsers() {
         })
         .catch(error => {
             console.error('Error fetching users:', error);
+            alert('Failed to load users.');
         });
 }
 
-// Function to handle adding a new user (you can mock adding data)
-function addUser() {
-    alert("Add User functionality is not implemented in this version.");
-}
+// Function to handle adding a new user via form submission
+function addUser(event) {
+    event.preventDefault(); // Prevent form from refreshing the page
 
-// Track the currently edited user
-let currentEditingUserId = null;
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const department = document.getElementById('department').value;
 
-// Function to handle editing a user
-function editUser(userId) {
-    fetch(API_URL)
+    if (firstName && lastName && email && department) {
+        const newUser = {
+            name: `${firstName} ${lastName}`,
+            email,
+            company: { name: department }
+        };
+
+        fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser)
+        })
         .then(response => response.json())
-        .then(users => {
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                currentEditingUserId = userId; // Store the user ID for later
+        .then(user => {
+            alert(`User ${user.name} added successfully.`);
+            fetchUsers(); // Refresh the user list
+            cancelAddUser(); // Close the form
+        })
+        .catch(error => {
+            console.error('Error adding user:', error);
+            alert('Failed to add user.');
+        });
+    } else {
+        alert('All fields are required!');
+    }
+}
 
-                // Populate the form fields with user data
-                document.getElementById('editFirstName').value = user.name.split(' ')[0] || '';
-                document.getElementById('editLastName').value = user.name.split(' ')[1] || '';
-                document.getElementById('editEmail').value = user.email || '';
-                document.getElementById('editDepartment').value = user.company.name || '';
+// Cancel the add user form and reset it
+function cancelAddUser() {
+    const form = document.getElementById('addUserFormFields');
+    if (form) {
+        form.reset(); // This will reset all form inputs
+    }
+    document.getElementById('addUserForm').style.display = 'none'; // Hide the form
+}
 
-                // Display the form
-                document.getElementById('editUserForm').style.display = 'block';
-            }
+// Show the Add User form
+function showAddUserForm() {
+    document.getElementById('addUserForm').style.display = 'block';
+}
+
+// Function to handle editing a user (opens a form pre-filled with user data)
+function editUser(userId) {
+    fetch(`${API_URL}/${userId}`)
+        .then(response => response.json())
+        .then(user => {
+            document.getElementById('firstName').value = user.name.split(' ')[0];
+            document.getElementById('lastName').value = user.name.split(' ')[1];
+            document.getElementById('email').value = user.email;
+            document.getElementById('department').value = user.company.name;
+
+            // Change the form's action from "Add" to "Edit"
+            const submitButton = document.querySelector('#addUserFormFields button[type="submit"]');
+            submitButton.textContent = 'Save Changes';
+            submitButton.setAttribute('onclick', `saveEditUser(${user.id})`);
+            
+            // Show the form
+            document.getElementById('addUserForm').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching user data for editing:', error);
+            alert('Failed to load user data.');
         });
 }
 
-// Save edited user
-function saveEditUser() {
+// Function to save changes after editing a user
+function saveEditUser(userId) {
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const department = document.getElementById('department').value;
+
     const updatedUser = {
-        id: currentEditingUserId,
-        firstname: document.getElementById('editFirstName').value,
-        lastname: document.getElementById('editLastName').value,
-        email: document.getElementById('editEmail').value,
-        department: document.getElementById('editDepartment').value
+        name: `${firstName} ${lastName}`,
+        email,
+        company: { name: department }
     };
 
-    // Handle the updated user
-    alert(`User with ID ${updatedUser.id} is updated.`);
-
-    // Hide the edit form after saving
-    cancelEdit();
+    fetch(`${API_URL}/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser)
+    })
+    .then(response => response.json())
+    .then(() => {
+        alert('User updated successfully.');
+        fetchUsers(); // Refresh the user list
+        cancelAddUser(); // Hide the form
+    })
+    .catch(error => {
+        console.error('Error updating user:', error);
+        alert('Failed to update user.');
+    });
 }
 
-// Cancel editing
-function cancelEdit() {
-    document.getElementById('editUserForm').reset();
-    document.getElementById('editUserForm').style.display = 'none';
-}
-
-// Function to handle deleting a user (mock action)
+// Function to handle deleting a user
 function deleteUser(userId) {
-    alert(`User with ID ${userId} would be deleted.`);
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`${API_URL}/${userId}`, { method: 'DELETE' })
+            .then(() => {
+                alert('User deleted successfully.');
+                fetchUsers(); // Refresh the user list
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user.');
+            });
+    }
 }
+
+// Event listeners
+document.getElementById('addUserBtn').addEventListener('click', showAddUserForm);
+document.getElementById('cancelAddUserBtn').addEventListener('click', cancelAddUser);
+document.getElementById('addUserFormFields').addEventListener('submit', addUser);
 
 // Initialize the page by fetching and displaying users
 document.addEventListener('DOMContentLoaded', fetchUsers);
-
-// Add event listener for "Add User" button
-document.getElementById('addUserBtn').addEventListener('click', addUser);
-
-// Handle form submission
-document.getElementById('editUserForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent form from refreshing the page
-    saveEditUser();
-});
