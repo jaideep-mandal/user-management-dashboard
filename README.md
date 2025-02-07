@@ -28,3 +28,6 @@ This project is a **User Management Dashboard** built to manage users' details t
 - **Add User**: Click the "Add User" button to open the form, fill in the user details, and submit.
 - **Edit User**: Click the "Edit" button next to a user to edit their details.
 - **Delete User**: Click the "Delete" button to remove a user from the list.
+
+**Deployment Link**
+https://jaideep-mandal.github.io/user-management-dashboard/
