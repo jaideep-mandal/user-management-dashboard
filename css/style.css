@@ -19,15 +19,30 @@ h1 {
     color: #333;
 }
 
-/* Add User Form Styles */
-#addUserForm {
+/* Modal Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px); /* Add blur effect */
+}
+
+/* Modal Form Styles */
+.modal-form {
     background-color: #f9f9f9;
     padding: 20px;
     border: 1px solid #ddd;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     max-width: 400px;
-    margin: 20px auto;
+    margin: 20px;
+    z-index: 10;
 }
 
 #addUserForm input {

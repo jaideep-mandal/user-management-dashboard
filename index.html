@@ -16,25 +16,27 @@
         <!-- Add User Button -->
         <button id="addUserBtn">Add User</button>
 
-        <!-- Add User Form (hidden initially) -->
-        <div id="addUserForm" style="display:none;">
-            <h2>Add New User</h2>
-            <form id="addUserFormFields">
-                <label for="firstName">First Name:</label>
-                <input type="text" id="firstName" name="firstName" required><br><br>
+        <!-- Add/Edit User Form Modal -->
+        <div id="formOverlay" class="overlay" style="display:none;">
+            <div id="addUserForm" class="modal-form">
+                <h2>Add New User</h2>
+                <form id="addUserFormFields">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required><br><br>
 
-                <label for="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="lastName" required><br><br>
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required><br><br>
 
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required><br><br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br><br>
 
-                <label for="department">Department:</label>
-                <input type="text" id="department" name="department" required><br><br>
+                    <label for="department">Department:</label>
+                    <input type="text" id="department" name="department" required><br><br>
 
-                <button type="submit">Submit</button>
-                <button type="button" id="cancelAddUserBtn">Cancel</button>
-            </form>
+                    <button type="submit">Submit</button>
+                    <button type="button" id="cancelAddUserBtn">Cancel</button>
+                </form>
+            </div>
         </div>
 
         <!-- User Table -->
