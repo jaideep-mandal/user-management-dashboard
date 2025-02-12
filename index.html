@@ -8,53 +8,40 @@
 </head>
 <body>
 
+    <!-- Floating Add User Button -->
+    <button id="addUserBtn" class="floating-btn">+</button>
+
     <!-- Main Container -->
     <div class="container">
-
         <h1>User Management Dashboard</h1>
 
-        <!-- Add User Button -->
-        <button id="addUserBtn">Add User</button>
-
-        <!-- Add/Edit User Form Modal -->
-        <div id="formOverlay" class="overlay" style="display:none;">
-            <div id="addUserForm" class="modal-form">
-                <h2>Add New User</h2>
-                <form id="addUserFormFields">
-                    <label for="firstName">First Name:</label>
-                    <input type="text" id="firstName" name="firstName" required><br><br>
-
-                    <label for="lastName">Last Name:</label>
-                    <input type="text" id="lastName" name="lastName" required><br><br>
-
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required><br><br>
-
-                    <label for="department">Department:</label>
-                    <input type="text" id="department" name="department" required><br><br>
-
-                    <button type="submit">Submit</button>
-                    <button type="button" id="cancelAddUserBtn">Cancel</button>
-                </form>
-            </div>
+        <!-- User Cards Container -->
+        <div id="userCardsContainer" class="user-cards">
+            <!-- User cards will be dynamically populated here -->
         </div>
+    </div>
 
-        <!-- User Table -->
-        <table id="userTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Department</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- User data will be populated here -->
-            </tbody>
-        </table>
+    <!-- Add/Edit User Form Modal -->
+    <div id="formOverlay" class="overlay" style="display:none;">
+        <div id="addUserForm" class="modal-form">
+            <h2>Add New User</h2>
+            <form id="addUserFormFields">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required><br>
+
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required><br>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required><br>
+
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" required><br>
+
+                <button type="submit">Submit</button>
+                <button type="button" id="cancelAddUserBtn">Cancel</button>
+            </form>
+        </div>
     </div>
 
     <script src="js/app.js"></script>
