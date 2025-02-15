@@ -1,7 +1,11 @@
 const API_URL = 'https://jsonplaceholder.typicode.com/users';
 let users = [];
+let visibleUsers = [];
+let currentIndex = 0;
+let userToDelete = null;
+const USERS_PER_LOAD = 6; // Load 6 users at a time
 
-// Fetch users from API and store locally
+// Fetch users from API once and store them
 function fetchUsers() {
     fetch(API_URL)
         .then(response => response.json())
@@ -13,17 +17,34 @@ function fetchUsers() {
                 email: user.email,
                 department: user.company?.name || 'N/A'
             }));
-            renderUsers();
+            loadMoreUsers(); // Load initial users
         })
-        .catch(error => alert('Failed to load users.'));
+        .catch(error => showNotification('Failed to load users.', 'error'));
 }
+
+// Load more users when scrolling
+function loadMoreUsers() {
+    const nextUsers = users.slice(currentIndex, currentIndex + USERS_PER_LOAD);
+    visibleUsers = [...visibleUsers, ...nextUsers]; // Append new users
+    currentIndex += USERS_PER_LOAD;
+    renderUsers(); // Re-render user cards
+}
+
+// Detect when user reaches the bottom and load more users
+window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+        if (currentIndex < users.length) {
+            loadMoreUsers();
+        }
+    }
+});
 
 // Render users as cards
 function renderUsers() {
     const container = document.getElementById('userCardsContainer');
     container.innerHTML = '';
 
-    users.forEach(user => {
+    visibleUsers.forEach(user => {
         const card = document.createElement('div');
         card.classList.add('user-card');
         card.innerHTML = `
@@ -70,16 +91,16 @@ function addUser(event) {
         users.push(newUser); // Add user to local array
         renderUsers();
         closeForm();
-        alert(`User ${firstName} ${lastName} added successfully.`);
+        showNotification(`User ${firstName} ${lastName} added successfully.`);
     } else {
-        alert('All fields are required!');
+        showNotification('All fields are required!', 'error');
     }
 }
 
 // Edit user by populating form
 function editUser(userId) {
     const user = users.find(u => u.id === userId);
-    if (!user) return alert('User not found!');
+    if (!user) return showNotification('User not found!', 'error');
 
     document.getElementById('firstName').value = user.firstName;
     document.getElementById('lastName').value = user.lastName;
@@ -104,21 +125,43 @@ function saveEditUser(userId) {
     const userIndex = users.findIndex(u => u.id === userId);
     if (userIndex !== -1) {
         users[userIndex] = { id: userId, firstName, lastName, email, department };
+
+        // Update visibleUsers array to reflect changes
+        visibleUsers = users.slice(0, currentIndex);
+        
         renderUsers();
         closeForm();
-        alert('User updated successfully.');
+        showNotification('User updated successfully.');
     } else {
-        alert('User not found!');
+        showNotification('User not found!', 'error');
     }
 }
 
 // Delete user from local array and update UI
 function deleteUser(userId) {
-    if (confirm('Are you sure you want to delete this user?')) {
-        users = users.filter(user => user.id !== userId);
+    userToDelete = userId; // Store user ID
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+// Confirm and delete user
+function confirmDeleteUser() {
+    if (userToDelete !== null) {
+        users = users.filter(user => user.id !== userToDelete);
+
+        // Update visibleUsers array to reflect deletion
+        visibleUsers = users.slice(0, currentIndex);
+
         renderUsers();
-        alert('User deleted successfully.');
+        showNotification('User deleted successfully.');
     }
+
+    closeDeleteModal();
+}
+
+// Close delete modal without deleting
+function closeDeleteModal() {
+    userToDelete = null; // Reset stored user ID
+    document.getElementById('deleteModal').style.display = 'none';
 }
 
 // Close & reset form
@@ -127,7 +170,26 @@ function closeForm() {
     document.getElementById('addUserFormFields').reset();
 }
 
+// Show a toast notification
+function showNotification(message, type = "success") {
+    const container = document.getElementById("notificationContainer");
+    const toast = document.createElement("div");
+    
+    toast.classList.add("toast");
+    if (type === "error") toast.classList.add("error");
+    
+    toast.innerHTML = message;
+    container.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
 // Event Listeners
 document.getElementById('addUserBtn').addEventListener('click', showAddUserForm);
 document.getElementById('cancelAddUserBtn').addEventListener('click', closeForm);
+document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDeleteUser);
+document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
 document.addEventListener('DOMContentLoaded', fetchUsers);
