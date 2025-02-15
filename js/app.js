@@ -3,7 +3,7 @@ let users = [];
 let visibleUsers = [];
 let currentIndex = 0;
 let userToDelete = null;
-const USERS_PER_LOAD = 6; // Load 6 users at a time
+let USERS_PER_LOAD = window.innerWidth <= 768 ? 5 : 6; // 5 users for small screens, 6 for large screens
 
 // Fetch users from API once and store them
 function fetchUsers() {
@@ -18,6 +18,7 @@ function fetchUsers() {
                 department: user.company?.name || 'N/A'
             }));
             loadMoreUsers(); // Load initial users
+            checkSmallScreenBehavior(); // Check if "Load More" should be added
         })
         .catch(error => showNotification('Failed to load users.', 'error'));
 }
@@ -25,16 +26,39 @@ function fetchUsers() {
 // Load more users when scrolling
 function loadMoreUsers() {
     const nextUsers = users.slice(currentIndex, currentIndex + USERS_PER_LOAD);
-    visibleUsers = [...visibleUsers, ...nextUsers]; // Append new users
+    visibleUsers = [...visibleUsers, ...nextUsers];
     currentIndex += USERS_PER_LOAD;
-    renderUsers(); // Re-render user cards
+    renderUsers();
+
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const noUsersLeftMsg = document.getElementById('noUsersLeftMsg');
+
+    if (currentIndex >= users.length) {
+        loadMoreBtn.style.display = 'none';  // Hide Load More button
+        noUsersLeftMsg.style.display = 'block'; // Show "No user left" message
+    } else {
+        loadMoreBtn.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+        noUsersLeftMsg.style.display = 'none';
+    }
 }
+
+// Check if the user is on a small screen and enable "Load More" behavior
+function checkSmallScreenBehavior() {
+    if (window.innerWidth <= 768) {
+        document.getElementById('loadMoreBtn').style.display = 'block';
+    }
+}
+
+// Event listener for "Load More" button
+document.getElementById('loadMoreBtn').addEventListener('click', loadMoreUsers);
 
 // Detect when user reaches the bottom and load more users
 window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
-        if (currentIndex < users.length) {
-            loadMoreUsers();
+    if (window.innerWidth > 768) { // Infinite scroll only for large screens
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+            if (currentIndex < users.length) {
+                loadMoreUsers();
+            }
         }
     }
 });
